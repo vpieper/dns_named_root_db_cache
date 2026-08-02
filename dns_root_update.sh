@@ -58,7 +58,15 @@ mv "$TEMP_ZONE" "$ZONE_DEST"
 
 # 5. Reload BIND
 if /usr/sbin/rndc reload > /tmp/rndc_out.log 2>&1; then
-    send_alert "SUCCESS: BIND Root Files Updated" "The scheduled update completed successfully.\n\nFiles updated:\n- $HINTS_DEST\n- $ZONE_DEST\n\nBIND cache was gracefully reloaded."
+    # Generate technical metrics for the success email
+    SUCCESS_MSG="BIND root files atomic update completed successfully.\n\n"
+    SUCCESS_MSG+="[+] Payload Statistics:\n"
+    SUCCESS_MSG+="- $HINTS_DEST: $(wc -l < "$HINTS_DEST") lines ($(stat -c%s "$HINTS_DEST") bytes)\n"
+    SUCCESS_MSG+="- $ZONE_DEST: $(wc -l < "$ZONE_DEST") lines ($(stat -c%s "$ZONE_DEST") bytes)\n\n"
+    SUCCESS_MSG+="[+] BIND Daemon Response:\n"
+    SUCCESS_MSG+="$(cat /tmp/rndc_out.log)"
+    
+    send_alert "SUCCESS: BIND Root Files Updated" "$SUCCESS_MSG"
 else
     ERROR_MSG=$(cat /tmp/rndc_out.log)
     send_alert "WARNING: BIND Files Downloaded but Reload Failed" "The root files downloaded successfully, but 'rndc reload' threw an error.\n\nError: $ERROR_MSG"
