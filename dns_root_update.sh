@@ -12,7 +12,8 @@ HINTS_URL="https://internic.net/domain/named.root"
 HINTS_DEST="/usr/share/dns/root.hints" 
 
 # The URL and the destination path for the Hyperlocal root zone file
-ZONE_URL="https://internic.net/domain/db.cache"
+# (Updated to the actual root.zone file to prevent 'unknown class/type' errors)
+ZONE_URL="https://internic.net/domain/root.zone"
 ZONE_DEST="/etc/bind/db.root" 
 
 # ==========================================
