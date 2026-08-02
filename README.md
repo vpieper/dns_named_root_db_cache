@@ -15,22 +15,25 @@ This script solves these issues by providing:
 Ensure your Debian system has standard mail utilities installed for the alerting function:
 ```bash
 apt install mailutils curl
+```
 
-Installation
+## Installation
 
-    Clone or download dns_root_update.sh to your preferred directory (e.g., /root/dns_named_root_db_cache/).
+1. Clone or download `dns_root_update.sh` to your preferred directory (e.g., `/root/dns_named_root_db_cache/`).
+2. Open the script and update the `ADMIN_EMAIL` variable with your actual email address.
+3. Make the script executable:
+```bash
+chmod +x /root/dns_named_root_db_cache/dns_root_update.sh
+```
 
-    Open the script and update the ADMIN_EMAIL variable with your actual email address.
+## Usage & Automation
 
-    Make the script executable:
+The script is designed to run silently in the background via cron, triggering an email only with the final status. Add the following to your root crontab (`crontab -e`) to run the update at 2:00 AM on the 1st of every month:
 
-Usage & Automation
-
-The script is designed to run silently in the background via cron, triggering an email only with the final status. Add the following to your root crontab (crontab -e) to run the update at 2:00 AM on the 1st of every month:
-
+```text
 # Update BIND root files and send status email
 0 2 1 * * /root/dns_named_root_db_cache/dns_root_update.sh
+```
 
-Error Handling
-
+## Error Handling
 If a download fails or BIND refuses to reload, the script will immediately halt, preserve the existing production files to maintain DNS resolution, and email the administrator the exact error output.
