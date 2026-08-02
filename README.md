@@ -1,0 +1,1 @@
+# dns_named_root_db_cache
