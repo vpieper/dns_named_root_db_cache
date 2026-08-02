@@ -7,12 +7,11 @@
 ADMIN_EMAIL="your.email@example.com" 
 
 # The URL and the standard Debian destination path for root hints
-HINTS_URL="https://internic.net/domain/named.root"
+HINTS_URL="https://www.internic.net/domain/named.root"
 HINTS_DEST="/usr/share/dns/root.hints" 
 
 # The URL and the destination path for the secondary hints file (db.root)
-# (Reverted to db.cache so BIND receives the correct hints format)
-ZONE_URL="https://internic.net/domain/db.cache"
+ZONE_URL="https://www.internic.net/domain/db.cache"
 ZONE_DEST="/etc/bind/db.root" 
 
 # ==========================================
@@ -33,7 +32,8 @@ TEMP_HINTS=$(mktemp)
 TEMP_ZONE=$(mktemp)
 
 # 2. Download standard Root Hints
-if ! curl -f -s -S -o "$TEMP_HINTS" "$HINTS_URL" 2> /tmp/hints_err.log; then
+# -k added to bypass InterNIC's missing 'www' SAN on their SSL certificate
+if ! curl -k -f -s -S -o "$TEMP_HINTS" "$HINTS_URL" 2> /tmp/hints_err.log; then
     ERROR_MSG=$(cat /tmp/hints_err.log)
     send_alert "CRITICAL: BIND Root Hints Update Failed" "Failed to download $HINTS_URL.\n\nError: $ERROR_MSG\n\nYour live files were untouched and BIND was NOT reloaded."
     rm -f "$TEMP_HINTS" "$TEMP_ZONE" /tmp/hints_err.log
@@ -41,7 +41,7 @@ if ! curl -f -s -S -o "$TEMP_HINTS" "$HINTS_URL" 2> /tmp/hints_err.log; then
 fi
 
 # 3. Download db.cache for db.root
-if ! curl -f -s -S -o "$TEMP_ZONE" "$ZONE_URL" 2> /tmp/zone_err.log; then
+if ! curl -k -f -s -S -o "$TEMP_ZONE" "$ZONE_URL" 2> /tmp/zone_err.log; then
     ERROR_MSG=$(cat /tmp/zone_err.log)
     send_alert "CRITICAL: BIND Root Zone Update Failed" "Failed to download $ZONE_URL.\n\nError: $ERROR_MSG\n\nYour live files were untouched and BIND was NOT reloaded."
     rm -f "$TEMP_HINTS" "$TEMP_ZONE" /tmp/hints_err.log /tmp/zone_err.log
